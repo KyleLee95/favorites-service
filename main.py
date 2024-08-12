@@ -30,6 +30,11 @@ async def startup_event():
         print("Bulk Write Error:", bwe.details)  # Log or handle the error as needed
 
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Beer API!"}
+
+
 # GET all records
 @app.get("/beers/", response_model=list[BeerModel])
 async def get_beers():
