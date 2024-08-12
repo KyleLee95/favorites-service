@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from models import BeerModel
 from bson import ObjectId
@@ -83,3 +85,15 @@ async def add_beer(beer: BeerModel):
     new_beer = await collection.insert_one(beer.dict(by_alias=True))
     created_beer = await collection.find_one({"_id": new_beer.inserted_id})
     return created_beer
+
+
+# 404 Handler
+@app.exception_handler(StarletteHTTPException)
+async def not_found_404_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        return JSONResponse(
+            status_code=404,
+            content={"message": "The requested resource was not found."},
+        )
+
+    return JSONResponse(status_code=exc.status_code, content={"message": exc.detail})
