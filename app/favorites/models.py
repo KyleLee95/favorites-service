@@ -1,13 +1,10 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel
 from bson import ObjectId
+from pydantic.json import pydantic_encoder
+from typing import Optional
 
 
 class PyObjectId(ObjectId):
-    """
-    A custom ObjectId field for use with Pydantic models, to support MongoDB ObjectId serialization.
-    """
-
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -19,17 +16,19 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+    def __get_pydantic_json_schema__(cls, schema):
+        schema.update(type="string")
+        return schema
+
+    def __str__(self):
+        return str(self)
 
 
 class FavoritesModel(BaseModel):
     id: int  # Custom numeric ID field
     title: str
-    image_file_id: Optional[PyObjectId] = Field(
-        default=None, alias="_id"
-    )  # Reference to the GridFS file
+    image_file_id: Optional[PyObjectId] = None  # Reference to the GridFS file
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         json_encoders = {ObjectId: str}

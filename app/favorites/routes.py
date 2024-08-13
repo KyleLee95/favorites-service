@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from bson import ObjectId
-from favorites.models import FavoritesModel
-from database import favorites_collection
+from app.favorites.models import FavoritesModel
+from app.database import favorites_collection
 
 router = APIRouter()
 

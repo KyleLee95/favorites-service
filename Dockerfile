@@ -2,7 +2,7 @@
 FROM python:3.10-slim
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /
 
 # Copy the requirements.txt file into the container
 COPY requirements.txt .
@@ -17,5 +17,5 @@ COPY ./app /app
 EXPOSE 8000
 
 # Command to run the FastAPI application using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 

@@ -1,15 +1,16 @@
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from bson import ObjectId
+from fastapi import APIRouter, Query
+from app.aic_api import aic_api
 
 router = APIRouter()
 
 
 # GET all records
 @router.get("/")
-async def get_favorites():
-    pass
+async def search(query: str = Query(..., description="The search query")):
+
+    response = aic_api.search(query)
+
+    return response
 
 
 @router.get("/{id}")
