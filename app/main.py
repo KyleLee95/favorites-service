@@ -16,22 +16,6 @@ app.include_router(favorites_router, prefix="/favorites")
 @app.on_event("startup")
 async def startup_event():
     print("FastAPI server startup event")
-    # Clear the collection on startup
-    await favorites_collection.delete_many({})
-    # Create a unique index on the 'id' field
-    await favorites_collection.create_index("id", unique=True)
-
-    # Generate fake data with custom numeric IDs
-    favorites = [
-        FavoritesModel(id=i, name=fake.name()).dict(by_alias=True)
-        for i in range(1, 1001)  # Generate IDs from 1 to 1000
-    ]
-
-    try:
-        # Insert the generated fake data into the collection
-        await favorites_collection.insert_many(favorites)
-    except BulkWriteError as bwe:
-        print("Bulk Write Error:", bwe.details)  # Log or handle the error as needed
 
 
 @app.get("/")
