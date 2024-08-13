@@ -11,7 +11,7 @@ router = APIRouter()
 # GET all records
 @router.get("/", response_model=list[FavoritesModel])
 async def get_favorites():
-    favorites = await favorites_collection.find().to_list(1000)
+    favorites = await favorites_collection.find().to_list(100)
     return favorites
 
 

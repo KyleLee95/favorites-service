@@ -15,7 +15,7 @@ async def search(query: str = Query(..., description="The search query")):
 
 @router.get("/{id}")
 async def get_favorite(id: int):
-    pass
+    return {"message": "Not implemented"}
     # raise HTTPException(status_code=404, detail="Favorite not found")
 
 
