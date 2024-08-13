@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017" # Expose MongoDB on port 27017
+
+  favorites-service:
+    build: .
+    container_name: favorites-service
+    ports:
+      - "8000:8000" # Expose FastAPI on port 8000
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017/favorites_db
+    depends_on:
+      - mongodb # Ensure MongoDB starts before the FastAPI service

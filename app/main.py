@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from app.favorites.routes import router as favorites_router
-from app.favorites.models import FavoritesModel
-from app.database import favorites_collection  # Import the collection
+from favorites.routes import router as favorites_router
+from favorites.models import FavoritesModel
+from database import favorites_collection  # Import the collection
 from faker import Faker
 from pymongo.errors import BulkWriteError
 
@@ -15,6 +15,7 @@ app.include_router(favorites_router, prefix="/favorites")
 
 @app.on_event("startup")
 async def startup_event():
+    print("FastAPI server startup event")
     # Clear the collection on startup
     await favorites_collection.delete_many({})
     # Create a unique index on the 'id' field
