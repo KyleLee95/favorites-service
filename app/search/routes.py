@@ -8,7 +8,7 @@ router = APIRouter()
 @router.get("/")
 async def search(query: str = Query(..., description="The search query")):
 
-    response = aic_api.search(query)
+    response = aic_api.search_artworks(query)
 
     return response
 
@@ -22,4 +22,5 @@ async def get_favorite(id: int):
 # GET records by page
 @router.get("/paged/{pageNum}")
 async def get_favorites_paged(pageNum: int = 0):
-    pass
+    response = aic_api.get_artworks_paged(pageNum)
+    return response

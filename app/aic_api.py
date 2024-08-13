@@ -4,10 +4,15 @@ import requests
 class AIC_API:
     def __init__(self):
         self.base_url = "https://api.artic.edu/api/v1"
-        self.search_artworks_endpoint = "/artworks/search"
         self.session = (
             requests.Session()
         )  # Use a session to persist parameters across requests
+
+    def get_artworks_paged(self, page_num=0):
+        url = f"{self.base_url}/artworks"
+        params = {"page": page_num}
+        response = self.session.get(url, params=params)
+        return self._handle_response(response)
 
     def search_artworks(self, query):
         """
@@ -17,12 +22,12 @@ class AIC_API:
         :return: JSON data containing search results.
         :raises Exception: If the request fails or returns a non-200 status code.
         """
-        url = self.base_url + self.search_artworks_endpoint
+        url = f"{self.base_url}/artworks/search"
         params = {"q": query}
         response = self.session.get(url, params=params)
         return self._handle_response(response)
 
-    def get_artwork(self, artwork_id):
+    def get_artwork_by_id(self, artwork_id):
         """
         Retrieve details of a specific artwork by its ID.
 
@@ -30,7 +35,7 @@ class AIC_API:
         :return: JSON data containing the artwork details.
         :raises Exception: If the request fails or returns a non-200 status code.
         """
-        url = f"{self.base_url}artworks/{artwork_id}"
+        url = f"{self.base_url}/artworks/{artwork_id}"
         response = self.session.get(url)
         return self._handle_response(response)
 
