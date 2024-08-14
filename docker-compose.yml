@@ -11,7 +11,7 @@ services:
     build: .
     container_name: favorites-service
     ports:
-      - "8000:8000" # Expose FastAPI on port 8000
+      - "8001:8001" # Expoose FastAPI on port 8000. Expose the port to the host machine on 8001.
     environment:
       - MONGODB_URL=mongodb://mongodb:27017/favorites_db
     depends_on:
