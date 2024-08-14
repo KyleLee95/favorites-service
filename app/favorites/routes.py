@@ -2,18 +2,29 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from bson import ObjectId
-from app.favorites.models import FavoritesModel
+from app.favorites.models import FavoritesModel, PaginatedFavoriteResponse, Pagination
 from app.database import favorites_collection
+import math
 
 router = APIRouter()
 
 
-# GET all records
-@router.get("/", response_model=list[FavoritesModel])
-async def get_favorites():
-    favorites = await favorites_collection.find().to_list(100)
-    print("fetched favorites from / route")
-    return favorites
+@router.get("/", response_model=PaginatedFavoriteResponse)
+async def get_favorites(page: int = 1, limit: int = 10):
+    total_items = await favorites_collection.count_documents({})
+    favorites = (
+        await favorites_collection.find()
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .to_list(length=limit)
+    )
+    total_pages = math.ceil(total_items / limit)
+
+    pagination = Pagination(
+        current_page=page, total_pages=total_pages, total_items=total_items, limit=limit
+    )
+
+    return PaginatedFavoriteResponse(pagination=pagination, data=favorites)
 
 
 @router.get("/{id}", response_model=FavoritesModel)

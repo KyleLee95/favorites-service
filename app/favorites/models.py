@@ -1,5 +1,6 @@
 from bson import ObjectId
 from pydantic import BaseModel
+from typing import List, Optional
 
 
 class PyObjectId(ObjectId):
@@ -31,3 +32,15 @@ class FavoritesModel(BaseModel):
     class Config:
         json_encoders = {ObjectId: str}
         from_attributes = True
+
+
+class Pagination(BaseModel):
+    current_page: int
+    total_pages: int
+    total_items: Optional[int] = None
+    limit: Optional[int] = None
+
+
+class PaginatedFavoriteResponse(BaseModel):
+    pagination: Pagination
+    data: List[FavoritesModel]
