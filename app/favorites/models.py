@@ -1,6 +1,5 @@
-from pydantic import BaseModel, Field, EmailStr
 from bson import ObjectId
-from typing import Optional
+from pydantic import BaseModel
 
 
 class PyObjectId(ObjectId):
@@ -9,7 +8,7 @@ class PyObjectId(ObjectId):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v, field=None, config=None):
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)
@@ -24,11 +23,11 @@ class PyObjectId(ObjectId):
 
 
 class FavoritesModel(BaseModel):
-    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    id: PyObjectId  # Use MongoDB's ObjectId as the ID
+    user_session_email: str
     title: str
-    userSessionEmail: EmailStr
-    image_file_id: Optional[PyObjectId] = None  # Reference to the GridFS file
+    artwork: dict  # Storing a complex JSON object as a dictionary
 
     class Config:
-        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
+        from_attributes = True

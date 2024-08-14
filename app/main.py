@@ -3,19 +3,18 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.favorites.routes import router as favorites_router
 from app.favorites.models import FavoritesModel
-from app.database import favorites_collection  # Import the collection
-from faker import Faker
+from app.database import favorites_collection, seed_database  # Import the collection
 from pymongo.errors import BulkWriteError
 
 app = FastAPI()
-fake = Faker()
 
 app.include_router(favorites_router, prefix="/favorites")
 
 
 @app.on_event("startup")
 async def startup_event():
-    print("FastAPI server startup event")
+    print("Starting up the favorites service...")
+    await seed_database(10)
 
 
 @app.get("/")

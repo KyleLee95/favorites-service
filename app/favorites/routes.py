@@ -17,15 +17,11 @@ async def get_favorites():
 
 
 @router.get("/{id}", response_model=FavoritesModel)
-async def get_favorite_by_id(id: str):  # Change type to str
-    print("fetched favorite from /{id} route")
-    try:
-        favorite = await favorites_collection.find_one({"_id": ObjectId(id)})
-        if favorite:
-            return favorite
-        raise HTTPException(status_code=404, detail="Favorite not found")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid ID: {str(e)}")
+async def get_favorite_by_id(id: str):
+    favorite = await favorites_collection.find_one({"_id": ObjectId(id)})
+    if favorite:
+        return favorite
+    raise HTTPException(status_code=404, detail="Favorite not found")
 
 
 # GET records by page
@@ -37,12 +33,13 @@ async def get_favorites_paged(pageNum: int = 0):
     return favorites
 
 
-@router.delete("/{id}")
-async def delete_favorite(id: str):
-    result = await favorites_collection.delete_one({"_id": ObjectId(id)})
-    if result.deleted_count == 1:
-        return {"status": "Favorite deleted"}
-    raise HTTPException(status_code=404, detail="Favorite not found")
+@router.post("/", response_model=FavoritesModel)
+async def add_favorite(favorite: FavoritesModel):
+    new_favorite = await favorites_collection.insert_one(favorite.dict(by_alias=True))
+    created_favorite = await favorites_collection.find_one(
+        {"_id": new_favorite.inserted_id}
+    )
+    return created_favorite
 
 
 @router.put("/{id}", response_model=FavoritesModel)
@@ -51,14 +48,14 @@ async def update_favorite(id: str, favorite: FavoritesModel):
         {"_id": ObjectId(id)}, favorite.dict(by_alias=True)
     )
     if result.modified_count == 1:
-        return favorite
+        updated_favorite = await favorites_collection.find_one({"_id": ObjectId(id)})
+        return updated_favorite
     raise HTTPException(status_code=404, detail="Favorite not found")
 
 
-@router.post("/", response_model=FavoritesModel)
-async def add_favorite(favorite: FavoritesModel):
-    new_favorite = await favorites_collection.insert_one(favorite.dict(by_alias=True))
-    created_favorite = await favorites_collection.find_one(
-        {"_id": new_favorite.inserted_id}
-    )
-    return created_favorite
+@router.delete("/{id}")
+async def delete_favorite(id: str):
+    result = await favorites_collection.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count == 1:
+        return {"status": "Favorite deleted"}
+    raise HTTPException(status_code=404, detail="Favorite not found")
