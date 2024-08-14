@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.favorites.routes import router as favorites_router
 from app.favorites.models import FavoritesModel
-from app.search.routes import router as search_router
 from app.database import favorites_collection  # Import the collection
 from faker import Faker
 from pymongo.errors import BulkWriteError
@@ -12,7 +11,6 @@ app = FastAPI()
 fake = Faker()
 
 app.include_router(favorites_router, prefix="/favorites")
-app.include_router(search_router, prefix="/search")
 
 
 @app.on_event("startup")
