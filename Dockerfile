@@ -13,6 +13,10 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 # Copy the rest of the application code into the container
 COPY ./app /app
 
+# Set MongoDB URL environment variable
+
+ENV MONGODB_URL="mongodb://mongodb:27017/favorites_db"
+
 # Expose the port that FastAPI will run on
 EXPOSE 8001
 

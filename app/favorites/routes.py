@@ -12,15 +12,20 @@ router = APIRouter()
 @router.get("/", response_model=list[FavoritesModel])
 async def get_favorites():
     favorites = await favorites_collection.find().to_list(100)
+    print("fetched favorites from / route")
     return favorites
 
 
 @router.get("/{id}", response_model=FavoritesModel)
-async def get_favorite(id: int):
-    favorite = await favorites_collection.find_one({"id": id})
-    if favorite:
-        return favorite
-    raise HTTPException(status_code=404, detail="Favorite not found")
+async def get_favorite_by_id(id: str):  # Change type to str
+    print("fetched favorite from /{id} route")
+    try:
+        favorite = await favorites_collection.find_one({"_id": ObjectId(id)})
+        if favorite:
+            return favorite
+        raise HTTPException(status_code=404, detail="Favorite not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid ID: {str(e)}")
 
 
 # GET records by page
@@ -32,7 +37,6 @@ async def get_favorites_paged(pageNum: int = 0):
     return favorites
 
 
-# DELETE a record by id
 @router.delete("/{id}")
 async def delete_favorite(id: str):
     result = await favorites_collection.delete_one({"_id": ObjectId(id)})
@@ -41,7 +45,6 @@ async def delete_favorite(id: str):
     raise HTTPException(status_code=404, detail="Favorite not found")
 
 
-# PUT (update) a record by id
 @router.put("/{id}", response_model=FavoritesModel)
 async def update_favorite(id: str, favorite: FavoritesModel):
     result = await favorites_collection.replace_one(
@@ -52,7 +55,6 @@ async def update_favorite(id: str, favorite: FavoritesModel):
     raise HTTPException(status_code=404, detail="Favorite not found")
 
 
-# POST (add) a new record
 @router.post("/", response_model=FavoritesModel)
 async def add_favorite(favorite: FavoritesModel):
     new_favorite = await favorites_collection.insert_one(favorite.dict(by_alias=True))

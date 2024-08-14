@@ -1,6 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 from bson import ObjectId
-from pydantic.json import pydantic_encoder
 from typing import Optional
 
 
@@ -25,10 +24,11 @@ class PyObjectId(ObjectId):
 
 
 class FavoritesModel(BaseModel):
-    id: int  # Custom numeric ID field
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     title: str
+    userSessionEmail: EmailStr
     image_file_id: Optional[PyObjectId] = None  # Reference to the GridFS file
 
     class Config:
-        populate_by_name = True
+        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
