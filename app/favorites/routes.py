@@ -3,7 +3,12 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from bson import ObjectId
 from typing import Optional
-from app.favorites.models import FavoritesModel, PaginatedFavoriteResponse, Pagination
+from app.favorites.models import (
+    FavoritesModel,
+    PaginatedFavoriteResponse,
+    Pagination,
+    FavoriteRequest,
+)
 from app.database import favorites_collection
 import math
 
@@ -59,19 +64,27 @@ async def get_favorite_by_id(id: str):
 
 
 @router.post("/", response_model=FavoritesModel)
-async def add_favorite(favorite: FavoritesModel):
-    # Check if a similar favorite already exists (optional check)
+async def add_favorite(favorite: FavoriteRequest):
+    # Check if a similar favorite already exists
     existing_favorite = await favorites_collection.find_one(
-        {"user_session_email": favorite.user_session_email, "artwork": favorite.artwork}
+        {
+            "userSessionEmail": favorite.user_session_email,
+            "artwork.id": favorite.artwork.id,
+        }
     )
     if existing_favorite:
         raise HTTPException(status_code=400, detail="Favorite already exists")
 
     # Insert the new favorite
-    new_favorite = await favorites_collection.insert_one(favorite.dict(by_alias=True))
+    new_favorite_data = {
+        "userSessionEmail": favorite.user_session_email,
+        "artwork": favorite.artwork.dict(),
+    }
+    new_favorite = await favorites_collection.insert_one(new_favorite_data)
     created_favorite = await favorites_collection.find_one(
         {"_id": new_favorite.inserted_id}
     )
+
     return created_favorite
 
 
