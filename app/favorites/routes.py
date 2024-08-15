@@ -66,6 +66,7 @@ async def get_favorite_by_id(id: str):
 @router.post("/", response_model=FavoritesModel)
 async def add_favorite(favorite: FavoriteRequest):
     # Check if a similar favorite already exists
+    print("favorite", favorite)
     existing_favorite = await favorites_collection.find_one(
         {
             "userSessionEmail": favorite.user_session_email,
