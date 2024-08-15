@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.favorites.routes import router as favorites_router
@@ -22,7 +22,6 @@ def read_root():
     return {"message": "Welcome to the Favorites API!"}
 
 
-# 404 Handler
 @app.exception_handler(StarletteHTTPException)
 async def not_found_404_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 404:
