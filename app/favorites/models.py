@@ -1,6 +1,13 @@
 from pydantic import BaseModel, Field
 from bson import ObjectId
-from typing import Optional
+from typing import Optional, List
+
+
+class Pagination(BaseModel):
+    current_page: int
+    total_pages: int
+    total_items: Optional[int] = None
+    limit: Optional[int] = None
 
 
 class PyObjectId(ObjectId):
@@ -42,3 +49,17 @@ class FavoritesModel(BaseModel):
         json_encoders = {ObjectId: str}
         allow_population_by_field_name = True
         from_attributes = True  # If you're using Pydantic V2
+
+
+class PaginatedFavoriteResponse(BaseModel):
+    pagination: Pagination
+    data: List[FavoritesModel]
+
+
+class FavoriteRequest(BaseModel):
+    user_session_email: str
+    artwork: ArtworkModel
+
+    class Config:
+        # Allows handling MongoDB ObjectIds correctly
+        arbitrary_types_allowed = True

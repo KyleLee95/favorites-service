@@ -17,15 +17,16 @@ router = APIRouter()
 
 @router.get("/", response_model=PaginatedFavoriteResponse)
 async def get_favorites(
-    user_session_email: str,  # Required parameter for exact email match
+    user_session_email: str,  # Now a required parameter
     query: Optional[str] = None,  # Fuzzy search query parameter
     page: int = 1,
     limit: int = 10,
 ):
-    # Exact match filter for user session email base_query = {"userSessionEmail": user_session_email}
+    # Base query to filter by user session email with exact match
+    base_query = {"userSessionEmail": user_session_email}
 
     # If a fuzzy search query is provided, add regex filtering for title and artist
-    if query is not None:
+    if query:
         base_query["$or"] = [
             {
                 "title": {"$regex": query, "$options": "i"}
