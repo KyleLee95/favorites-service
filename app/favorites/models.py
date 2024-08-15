@@ -47,8 +47,8 @@ class FavoritesModel(BaseModel):
 
     class Config:
         json_encoders = {ObjectId: str}
-        allow_population_by_field_name = True
-        from_attributes = True  # If you're using Pydantic V2
+        populate_by_name = True  # Updated to Pydantic V2
+        from_attributes = True
 
 
 class PaginatedFavoriteResponse(BaseModel):
@@ -61,5 +61,4 @@ class FavoriteRequest(BaseModel):
     artwork: ArtworkModel
 
     class Config:
-        # Allows handling MongoDB ObjectIds correctly
         arbitrary_types_allowed = True

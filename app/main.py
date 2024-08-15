@@ -14,7 +14,6 @@ app.include_router(favorites_router, prefix="/favorites")
 @app.on_event("startup")
 async def startup_event():
     print("Starting up the favorites service...")
-    await seed_database(10)
 
 
 @app.get("/")
