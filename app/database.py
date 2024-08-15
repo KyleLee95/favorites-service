@@ -5,7 +5,10 @@ from faker import Faker
 import asyncio
 import os
 
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://favorites-mongodb:27017/favorites_db")
+MONGODB_URL = os.getenv(
+    "MONGODB_URL",
+    "mongodb://favorites-mongodb.hfu5mq8dph6eg.us-east-1.cs.amazonlightsail.com:27017/favorites_db",
+)
 client = AsyncIOMotorClient(MONGODB_URL)
 db = client["favorites_db"]
 favorites_collection = db["favorites"]
