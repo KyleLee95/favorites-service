@@ -21,7 +21,7 @@ async def get_favorites(
     base_query = {"userSessionEmail": user_session_email}
 
     # If a fuzzy search query is provided, add regex filtering for title and artist
-    if query:
+    if query is not None:
         base_query["$or"] = [
             {
                 "title": {"$regex": query, "$options": "i"}
@@ -58,33 +58,21 @@ async def get_favorite_by_id(id: str):
     raise HTTPException(status_code=404, detail="Favorite not found")
 
 
-# GET records by page
-@router.get("/paged/{pageNum}", response_model=list[FavoritesModel])
-async def get_favorites_paged(pageNum: int = 0):
-    favorites = (
-        await favorites_collection.find().skip(pageNum * 20).limit(20).to_list(20)
-    )
-    return favorites
-
-
 @router.post("/", response_model=FavoritesModel)
 async def add_favorite(favorite: FavoritesModel):
+    # Check if a similar favorite already exists (optional check)
+    existing_favorite = await favorites_collection.find_one(
+        {"user_session_email": favorite.user_session_email, "artwork": favorite.artwork}
+    )
+    if existing_favorite:
+        raise HTTPException(status_code=400, detail="Favorite already exists")
+
+    # Insert the new favorite
     new_favorite = await favorites_collection.insert_one(favorite.dict(by_alias=True))
     created_favorite = await favorites_collection.find_one(
         {"_id": new_favorite.inserted_id}
     )
     return created_favorite
-
-
-@router.put("/{id}", response_model=FavoritesModel)
-async def update_favorite(id: str, favorite: FavoritesModel):
-    result = await favorites_collection.replace_one(
-        {"_id": ObjectId(id)}, favorite.dict(by_alias=True)
-    )
-    if result.modified_count == 1:
-        updated_favorite = await favorites_collection.find_one({"_id": ObjectId(id)})
-        return updated_favorite
-    raise HTTPException(status_code=404, detail="Favorite not found")
 
 
 @router.delete("/{id}")
