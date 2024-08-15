@@ -22,8 +22,7 @@ async def get_favorites(
     page: int = 1,
     limit: int = 10,
 ):
-    # Exact match filter for user session email
-    base_query = {"userSessionEmail": user_session_email}
+    # Exact match filter for user session email base_query = {"userSessionEmail": user_session_email}
 
     # If a fuzzy search query is provided, add regex filtering for title and artist
     if query is not None:
@@ -64,9 +63,8 @@ async def get_favorite_by_id(id: str):
 
 
 @router.post("/", response_model=FavoritesModel)
-async def add_favorite(favorite: FavoriteRequest):
+async def add_favorite(favorite: FavoritesModel):
     # Check if a similar favorite already exists
-    print("favorite", favorite)
     existing_favorite = await favorites_collection.find_one(
         {
             "userSessionEmail": favorite.user_session_email,
@@ -74,18 +72,13 @@ async def add_favorite(favorite: FavoriteRequest):
         }
     )
     if existing_favorite:
-        raise HTTPException(status_code=400, detail="Favorite already exists")
+        return existing_favorite
 
-    # Insert the new favorite
-    new_favorite_data = {
-        "userSessionEmail": favorite.user_session_email,
-        "artwork": favorite.artwork.dict(),
-    }
-    new_favorite = await favorites_collection.insert_one(new_favorite_data)
+    # If no existing record is found, create a new favorite
+    new_favorite = await favorites_collection.insert_one(favorite.dict(by_alias=True))
     created_favorite = await favorites_collection.find_one(
         {"_id": new_favorite.inserted_id}
     )
-
     return created_favorite
 
 

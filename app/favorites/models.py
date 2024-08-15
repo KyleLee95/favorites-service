@@ -1,6 +1,6 @@
+from pydantic import BaseModel, Field
 from bson import ObjectId
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 
 class PyObjectId(ObjectId):
@@ -9,7 +9,7 @@ class PyObjectId(ObjectId):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v, field=None, config=None):
+    def validate(cls, v):
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)
@@ -23,29 +23,6 @@ class PyObjectId(ObjectId):
         return str(self)
 
 
-class FavoritesModel(BaseModel):
-    id: PyObjectId  # Use MongoDB's ObjectId as the ID
-    user_session_email: str
-    title: str
-    artwork: dict  # Storing a complex JSON object as a dictionary
-
-    class Config:
-        json_encoders = {ObjectId: str}
-        from_attributes = True
-
-
-class Pagination(BaseModel):
-    current_page: int
-    total_pages: int
-    total_items: Optional[int] = None
-    limit: Optional[int] = None
-
-
-class PaginatedFavoriteResponse(BaseModel):
-    pagination: Pagination
-    data: List[FavoritesModel]
-
-
 class ArtworkModel(BaseModel):
     id: int
     title: str
@@ -56,10 +33,12 @@ class ArtworkModel(BaseModel):
     image_id: Optional[str]
 
 
-class FavoriteRequest(BaseModel):
-    user_session_email: str
+class FavoritesModel(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    user_session_email: str = Field(alias="userSessionEmail")
     artwork: ArtworkModel
 
     class Config:
-        # Allows handling MongoDB ObjectIds correctly
-        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        allow_population_by_field_name = True
+        from_attributes = True  # If you're using Pydantic V2
